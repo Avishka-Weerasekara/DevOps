@@ -1,10 +1,12 @@
-version: "3.8"
 services:
   frontend:
     build: ./frontend
     container_name: frontend_c
     ports:
       - '3000:3000'
+    depends_on:
+      - backend
+
   backend:
     build: ./backend
     container_name: backend_c
@@ -12,3 +14,18 @@ services:
       - '4000:4000'
     stdin_open: true
     tty: true
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/devopsdb
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:6.0
+    container_name: mongo_c
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
