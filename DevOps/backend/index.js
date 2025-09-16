@@ -1,40 +1,55 @@
-const express = require('express')
-const cors = require('cors')
-const mongoose = require('mongoose')
+const express = require('express');
+const mongoose = require('mongoose');
+const router = express.Router();
+const bcrypt = require('bcrypt');
 
-const app = express()
-app.use(cors())
-app.use(express.json())
+// User schema
+const UserSchema = new mongoose.Schema({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true }
+});
 
-// Connect to MongoDB
-const mongoURL = process.env.MONGO_URL || 'mongodb://localhost:27017/devopsdb'
+const User = mongoose.model('User', UserSchema);
 
-mongoose.connect(mongoURL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-  .then(() => console.log('Connected to MongoDB'))
-  .catch((err) => console.error('MongoDB connection error:', err))
+// Signup route
+router.post('/signup', async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-// Define a schema and model
-const BookSchema = new mongoose.Schema({
-  title: String,
-})
+    // Check if user exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(400).json({ message: 'User already exists' });
 
-const Book = mongoose.model('Book', BookSchema)
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-// Routes
-app.get('/', async (req, res) => {
-  const books = await Book.find()
-  res.json(books)
-})
+    // Save user
+    const user = new User({ email, password: hashedPassword });
+    await user.save();
 
-app.post('/', async (req, res) => {
-  const book = new Book(req.body)
-  await book.save()
-  res.json(book)
-})
+    res.json({ message: 'User created successfully' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
-app.listen(4000, () => {
-  console.log('listening for requests on port 4000')
-})
+// Signin route
+router.post('/signin', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // Find user
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: 'Invalid email or password' });
+
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(400).json({ message: 'Invalid email or password' });
+
+    res.json({ message: 'Logged in successfully' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+module.exports = router;
