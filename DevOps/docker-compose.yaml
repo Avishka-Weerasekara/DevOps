@@ -1,9 +1,13 @@
+version: '3.9'
+
 services:
   frontend:
     build: ./frontend
     container_name: frontend_c
     ports:
-      - '3000:3000'
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://backend:5000  # Docker network URL for backend
     depends_on:
       - backend
 
@@ -11,7 +15,7 @@ services:
     build: ./backend
     container_name: backend_c
     ports:
-      - '4000:4000'
+      - "5000:5000"
     stdin_open: true
     tty: true
     environment:
@@ -23,7 +27,7 @@ services:
     image: mongo:6.0
     container_name: mongo_c
     ports:
-      - '27017:27017'
+      - "27017:27017"
     volumes:
       - mongo-data:/data/db
 

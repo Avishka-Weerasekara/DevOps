@@ -7,8 +7,12 @@ function Signup() {
 
   const handleSignup = async (e) => {
     e.preventDefault();
+
     try {
-      const res = await fetch("http://localhost:4000/api/auth/signup", {
+      // Use environment variable for backend API URL
+      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
+      const res = await fetch(`${API_URL}/api/users/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

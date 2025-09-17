@@ -1,55 +1,79 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const router = express.Router();
-const bcrypt = require('bcrypt');
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+import User from './models/User.js';
 
-// User schema
-const UserSchema = new mongoose.Schema({
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true }
-});
+dotenv.config();
 
-const User = mongoose.model('User', UserSchema);
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// MongoDB connection
+const MONGO_URL = process.env.MONGO_URL || 'mongodb://mongo:27017/devopsdb'; // Docker uses service name 'mongo'
+mongoose.connect(MONGO_URL, {
+    // options removed as deprecated in Mongoose v8
+})
+  .then(() => console.log('MongoDB connected'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // Signup route
-router.post('/signup', async (req, res) => {
+app.post('/api/users/signup', async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
     // Check if user exists
     const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: 'User already exists' });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
 
-    // Hash password
+    // Hash password and save user
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Save user
     const user = new User({ email, password: hashedPassword });
     await user.save();
 
-    res.json({ message: 'User created successfully' });
+    res.status(201).json({ message: 'User created successfully' });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Signup error:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
 // Signin route
-router.post('/signin', async (req, res) => {
+app.post('/api/users/signin', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: 'Invalid email or password' });
 
-    // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid email or password' });
 
-    res.json({ message: 'Logged in successfully' });
+    res.json({
+      message: 'Logged in successfully',
+      user: { id: user._id, email: user.email }
+    });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Signin error:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-module.exports = router;
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
