@@ -6,7 +6,6 @@ import dotenv from 'dotenv';
 import User from './models/User.js';
 
 dotenv.config();
-
 const app = express();
 
 // Middleware
@@ -14,30 +13,23 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB connection
-const MONGO_URL = process.env.MONGO_URL || 'mongodb://mongo:27017/devopsdb'; // Docker uses service name 'mongo'
-mongoose.connect(MONGO_URL, {
-    // options removed as deprecated in Mongoose v8
-})
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+const MONGO_URL = process.env.MONGO_URL || 'mongodb://mongo:27017/devopsdb';
+mongoose.connect(MONGO_URL)
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// Signup route
+// ------------------- SIGNUP ROUTE -------------------
 app.post('/api/users/signup', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validate input
-    if (!email || !password) {
+    if (!email || !password)
       return res.status(400).json({ message: 'Email and password are required' });
-    }
 
-    // Check if user exists
     const existingUser = await User.findOne({ email });
-    if (existingUser) {
+    if (existingUser)
       return res.status(400).json({ message: 'User already exists' });
-    }
 
-    // Hash password and save user
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({ email, password: hashedPassword });
     await user.save();
@@ -49,14 +41,13 @@ app.post('/api/users/signup', async (req, res) => {
   }
 });
 
-// Signin route
+// ------------------- SIGNIN ROUTE -------------------
 app.post('/api/users/signin', async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
+    if (!email || !password)
       return res.status(400).json({ message: 'Email and password are required' });
-    }
 
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: 'Invalid email or password' });
@@ -64,9 +55,13 @@ app.post('/api/users/signin', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid email or password' });
 
+    // ✅ Update last login time
+    user.lastLogin = new Date();
+    await user.save();
+
     res.json({
       message: 'Logged in successfully',
-      user: { id: user._id, email: user.email }
+      user: { id: user._id, email: user.email, lastLogin: user.lastLogin }
     });
   } catch (err) {
     console.error('Signin error:', err);
@@ -74,6 +69,6 @@ app.post('/api/users/signin', async (req, res) => {
   }
 });
 
-// Start server
+// ------------------- START SERVER -------------------
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

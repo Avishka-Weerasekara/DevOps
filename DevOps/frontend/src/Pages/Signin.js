@@ -1,16 +1,16 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Signin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleSignin = async (e) => {
     e.preventDefault();
-
     try {
-      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
-
+      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
       const res = await fetch(`${API_URL}/api/users/signin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -19,6 +19,11 @@ function Signin() {
 
       const data = await res.json();
       setMessage(data.message);
+
+      if (res.ok) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+        navigate("/home");
+      }
     } catch (err) {
       console.error(err);
       setMessage("Error signing in");
