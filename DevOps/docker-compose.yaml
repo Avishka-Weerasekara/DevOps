@@ -7,7 +7,8 @@ services:
     ports:
       - "3001:3000"
     environment:
-      - REACT_APP_API_URL=http://localhost:5000   # ✅ Match new backend port
+      - REACT_APP_API_URL=http://backend:5000
+    
     depends_on:
       - backend
 
@@ -15,7 +16,7 @@ services:
     build: ./backend
     container_name: backend_c
     ports:
-      - "5001:5000"   # ✅ Change host port to 5001
+      - "5001:5000"
     stdin_open: true
     tty: true
     environment:
@@ -27,7 +28,7 @@ services:
     image: mongo:6.0
     container_name: mongo_c
     ports:
-      - "27017:27017"
+      - "27018:27017"
     volumes:
       - mongo-data:/data/db
 

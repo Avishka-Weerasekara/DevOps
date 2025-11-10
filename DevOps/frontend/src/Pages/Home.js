@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import "./Home.css";
 
 function Home() {
   const navigate = useNavigate();
@@ -11,17 +12,35 @@ function Home() {
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h2>Welcome to Home Page</h2>
-      {user ? (
-        <>
-          <p>Email: {user.email}</p>
-          <p>Last Login: {new Date(user.lastLogin).toLocaleString()}</p>
-          <button onClick={handleLogout}>Logout</button>
-        </>
-      ) : (
-        <p>No user logged in.</p>
-      )}
+    <div className="home-container">
+      {/* ✅ Navbar */}
+      <nav className="navbar">
+        <div className="nav-logo">DevOps App</div>
+        <div className="nav-links">
+          <button onClick={() => navigate("/home")}>Home</button>
+          <button onClick={() => navigate("/about")}>About</button>
+          <button onClick={() => navigate("/contact")}>Contact</button>
+          {user && <button onClick={handleLogout}>Logout</button>}
+        </div>
+      </nav>
+
+      {/* ✅ Main content */}
+      <main className="home-content">
+        <h2>Welcome to Home Page</h2>
+        {user ? (
+          <div className="user-card">
+            <p><strong>Email:</strong> {user.email}</p>
+            <p><strong>Last Login:</strong> {new Date(user.lastLogin).toLocaleString()}</p>
+          </div>
+        ) : (
+          <p>No user logged in.</p>
+        )}
+      </main>
+
+      {/* ✅ Footer */}
+      <footer className="footer">
+        <p>© {new Date().getFullYear()} E Commerce </p>
+      </footer>
     </div>
   );
 }
