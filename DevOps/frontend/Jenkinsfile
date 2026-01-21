@@ -4,12 +4,16 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'avishkaweera20/devops-frontend'
         DOCKERHUB_CREDENTIALS = 'dockerhub'
+        EC2_USER = 'ubuntu'
+        EC2_HOST = '16.171.136.59'
     }
 
     stages {
+
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/Avishka-Weerasekara/DevOps.git'
+                git branch: 'main',
+                    url: 'https://github.com/Avishka-Weerasekara/DevOps.git'
             }
         }
 
@@ -23,12 +27,31 @@ pipeline {
 
         stage('Push to Docker Hub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: "$DOCKERHUB_CREDENTIALS", passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) {
+                withCredentials([usernamePassword(
+                    credentialsId: DOCKERHUB_CREDENTIALS,
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
                     sh '''
-                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                    docker push $DOCKER_IMAGE:latest
-                    docker logout
-                    '''
+echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+docker push $DOCKER_IMAGE:latest
+docker logout
+'''
+                }
+            }
+        }
+
+        stage('Deploy to AWS EC2') {
+            steps {
+                sshagent(credentials: ['bd4685d7-504d-4f3b-930c-075db4165b52']) {
+                    sh '''
+ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST <<EOF
+docker pull $DOCKER_IMAGE:latest
+docker stop frontend || true
+docker rm frontend || true
+docker run -d -p 80:3000 --name frontend $DOCKER_IMAGE:latest
+EOF
+'''
                 }
             }
         }
