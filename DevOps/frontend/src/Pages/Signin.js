@@ -7,7 +7,7 @@ function Signin() {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
-  // ✅ Backend API URL from .env
+  // ✅ API URL from environment
   const API_URL = process.env.REACT_APP_API_URL;
 
   const handleSignin = async (e) => {
@@ -23,6 +23,13 @@ function Signin() {
         body: JSON.stringify({ email, password }),
       });
 
+      // 🔐 SAFETY: check response type
+      const contentType = res.headers.get("content-type");
+
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Received non-JSON response (wrong API URL)");
+      }
+
       const data = await res.json();
 
       if (!res.ok) {
@@ -30,10 +37,10 @@ function Signin() {
         return;
       }
 
-      // ✅ Save user info
+      // ✅ Save user
       localStorage.setItem("user", JSON.stringify(data.user));
-
       setMessage("Login successful");
+
       navigate("/home");
     } catch (error) {
       console.error("Signin error:", error);
