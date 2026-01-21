@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB connection
-const MONGO_URL = process.env.MONGO_URL || 'mongodb://mongo:27017/devopsdb';
+const MONGO_URL = process.env.MONGO_URL || 'mongodb://mongodb:27017/devopsdb';
 mongoose.connect(MONGO_URL)
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
