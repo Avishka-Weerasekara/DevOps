@@ -7,32 +7,44 @@ function Signin() {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
+  // ✅ Backend API URL from .env
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const handleSignin = async (e) => {
     e.preventDefault();
+    setMessage("");
+
     try {
-      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
       const res = await fetch(`${API_URL}/api/users/signin`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
-      setMessage(data.message);
 
-      if (res.ok) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/home");
+      if (!res.ok) {
+        setMessage(data.message || "Invalid email or password");
+        return;
       }
-    } catch (err) {
-      console.error(err);
-      setMessage("Error signing in");
+
+      // ✅ Save user info
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      setMessage("Login successful");
+      navigate("/home");
+    } catch (error) {
+      console.error("Signin error:", error);
+      setMessage("Server error. Please try again.");
     }
   };
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
       <h2>Sign In</h2>
+
       <form onSubmit={handleSignin}>
         <input
           type="email"
@@ -41,7 +53,8 @@ function Signin() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <br />
+        <br /><br />
+
         <input
           type="password"
           placeholder="Password"
@@ -49,10 +62,12 @@ function Signin() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <br />
+        <br /><br />
+
         <button type="submit">Sign In</button>
       </form>
-      <p>{message}</p>
+
+      {message && <p>{message}</p>}
     </div>
   );
 }

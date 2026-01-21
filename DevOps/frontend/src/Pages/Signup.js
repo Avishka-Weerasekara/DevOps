@@ -5,27 +5,42 @@ function Signup() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
 
+  // ✅ Backend API URL (from .env)
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const handleSignup = async (e) => {
     e.preventDefault();
+    setMessage("");
+
     try {
-      const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
       const res = await fetch(`${API_URL}/api/users/signup`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
+
+      if (!res.ok) {
+        setMessage(data.message || "Signup failed");
+        return;
+      }
+
       setMessage(data.message);
-    } catch (err) {
-      console.error(err);
-      setMessage("Error signing up");
+      setEmail("");
+      setPassword("");
+    } catch (error) {
+      console.error("Signup error:", error);
+      setMessage("Server error. Please try again.");
     }
   };
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
       <h2>Sign Up</h2>
+
       <form onSubmit={handleSignup}>
         <input
           type="email"
@@ -34,7 +49,8 @@ function Signup() {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        <br />
+        <br /><br />
+
         <input
           type="password"
           placeholder="Password"
@@ -42,10 +58,12 @@ function Signup() {
           onChange={(e) => setPassword(e.target.value)}
           required
         />
-        <br />
+        <br /><br />
+
         <button type="submit">Sign Up</button>
       </form>
-      <p>{message}</p>
+
+      {message && <p>{message}</p>}
     </div>
   );
 }
