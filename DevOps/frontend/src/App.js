@@ -5,7 +5,10 @@ import Signin from "./Pages/Signin";
 import Root from "./Pages/Root";
 import Home from "./Pages/Home";
 import About from "./Pages/About";     // ✅ Add
-import Contact from "./Pages/Contact"; // ✅ Add
+import Contact from "./Pages/Contact";
+import Products from "./Pages/Products";
+import Cart from "./Pages/Cart";
+import Profile from "./Pages/Profile"; // ✅ Add
 import "./App.css";
 
 function App() {
@@ -16,8 +19,10 @@ function App() {
         <Route path="/signin" element={<Signin />} />
         <Route path="/" element={<Root/>} />
         <Route path="/home" element={<Home />} />
-        <Route path="/about" element={<About />} />      {/* ✅ New Route */}
-        <Route path="/contact" element={<Contact />} />  {/* ✅ New Route */}
+        <Route path="/products" element={<Products />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/profile" element={<Profile />} />  {/* ✅ New Route */}
       </Routes>
     </Router>
   );
