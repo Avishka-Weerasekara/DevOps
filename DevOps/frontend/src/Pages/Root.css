@@ -1,0 +1,153 @@
+/* ===============================
+   ROOT PAGE – DESKTOP FIRST
+================================ */
+
+/* Page background */
+.root-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #6ee7e0, #a5b4fc, #fbcfe8);
+  background-size: 300% 300%;
+  animation: gradientMove 10s ease infinite;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Gradient animation */
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ===============================
+   CARD (DESKTOP DEFAULT)
+================================ */
+.root-card {
+  width: 520px;              /* Desktop width */
+  padding: 70px 60px;
+  background: rgba(255, 255, 255, 0.85);
+
+  /* Safari + modern browsers */
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+
+  border-radius: 30px;
+  box-shadow: 0 35px 80px rgba(0, 0, 0, 0.22);
+  text-align: center;
+}
+
+/* Heading */
+.root-card h1 {
+  font-size: 3rem;           /* Desktop font size */
+  font-weight: 800;
+  color: #1f2937;
+  margin-bottom: 15px;
+}
+
+/* Subtitle */
+.root-card p {
+  font-size: 1.2rem;
+  color: #4b5563;
+  margin-bottom: 45px;
+}
+
+/* ===============================
+   BUTTONS (DESKTOP)
+================================ */
+.root-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+/* Primary button */
+.root-btn-primary {
+  padding: 18px 42px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #ffffff;
+  font-size: 1.15rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.root-btn-primary:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(99, 102, 241, 0.45);
+}
+
+/* Secondary button */
+.root-btn-outline {
+  padding: 18px 42px;
+  border-radius: 18px;
+  border: 2px solid #6366f1;
+  color: #6366f1;
+  font-size: 1.15rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.root-btn-outline:hover {
+  background: #6366f1;
+  color: white;
+}
+
+/* =====================================================
+   TABLET (≤ 1024px)
+===================================================== */
+@media (max-width: 1024px) {
+  .root-card {
+    width: 420px;
+    padding: 55px 45px;
+  }
+
+  .root-card h1 {
+    font-size: 2.4rem;
+  }
+
+  .root-card p {
+    font-size: 1.1rem;
+  }
+
+  .root-btn-primary,
+  .root-btn-outline {
+    padding: 16px 36px;
+    font-size: 1.05rem;
+  }
+}
+
+/* =====================================================
+   MOBILE (≤ 600px)
+===================================================== */
+@media (max-width: 600px) {
+  .root-card {
+    width: 92%;
+    padding: 45px 28px;
+    border-radius: 22px;
+  }
+
+  .root-card h1 {
+    font-size: 2rem;
+  }
+
+  .root-card p {
+    font-size: 1rem;
+    margin-bottom: 30px;
+  }
+
+  .root-buttons {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .root-btn-primary,
+  .root-btn-outline {
+    width: 100%;
+    padding: 15px;
+    font-size: 1rem;
+  }
+}

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import "./Signin.css";
 
 function Signin() {
   const [email, setEmail] = useState("");
@@ -7,7 +8,6 @@ function Signin() {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
-  // ✅ API URL from environment
   const API_URL = process.env.REACT_APP_API_URL;
 
   const handleSignin = async (e) => {
@@ -17,18 +17,9 @@ function Signin() {
     try {
       const res = await fetch(`${API_URL}/api/users/signin`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-
-      // 🔐 SAFETY: check response type
-      const contentType = res.headers.get("content-type");
-
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Received non-JSON response (wrong API URL)");
-      }
 
       const data = await res.json();
 
@@ -37,44 +28,50 @@ function Signin() {
         return;
       }
 
-      // ✅ Save user
       localStorage.setItem("user", JSON.stringify(data.user));
-      setMessage("Login successful");
-
       navigate("/home");
     } catch (error) {
-      console.error("Signin error:", error);
       setMessage("Server error. Please try again.");
     }
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h2>Sign In</h2>
+    <div className="signin-page">
+      <div className="signin-card">
+        <h2>Welcome Back</h2>
 
-      <form onSubmit={handleSignin}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <br /><br />
+        <form onSubmit={handleSignin}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <br /><br />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
 
-        <button type="submit">Sign In</button>
-      </form>
+          <div className="signin-btn-group">
+            <button type="submit" className="signin-btn-primary">
+              Sign In
+            </button>
 
-      {message && <p>{message}</p>}
+            <Link to="/signup">
+              <button type="button" className="signin-btn-outline">
+                Go to Sign Up
+              </button>
+            </Link>
+          </div>
+        </form>
+
+        {message && <p className="signin-message">{message}</p>}
+      </div>
     </div>
   );
 }
