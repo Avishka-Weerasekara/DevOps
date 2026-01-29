@@ -26,7 +26,9 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 dir('DevOps/frontend') {
-                    sh 'docker build -t $DOCKER_IMAGE:latest .'
+                    sh '''
+docker build -t ${DOCKER_IMAGE}:latest .
+'''
                 }
             }
         }
@@ -43,7 +45,7 @@ pipeline {
                 )]) {
                     sh '''
 echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-docker push $DOCKER_IMAGE:latest
+docker push ${DOCKER_IMAGE}:latest
 docker logout
 '''
                 }
@@ -71,7 +73,7 @@ terraform apply -auto-approve \
         }
 
         /* =========================
-           5. DEPLOY TO EC2 (FIXED)
+           5. DEPLOY TO AWS EC2
         ========================== */
         stage('Deploy to AWS EC2') {
             steps {
@@ -88,20 +90,20 @@ terraform apply -auto-approve \
 ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << 'EOF'
 set -e
 
-# Install Docker if not installed yet
+# Install Docker if not installed
 if ! command -v docker >/dev/null 2>&1; then
   sudo apt update -y
   sudo apt install -y docker.io
   sudo systemctl start docker
   sudo systemctl enable docker
-  sudo usermod -aG docker ubuntu
 fi
 
-# Deploy container
-docker pull ${DOCKER_IMAGE}:latest
-docker stop frontend || true
-docker rm frontend || true
-docker run -d -p 80:3000 --name frontend ${DOCKER_IMAGE}:latest
+# Run container using sudo (CI-safe)
+sudo docker pull ${DOCKER_IMAGE}:latest
+sudo docker stop frontend || true
+sudo docker rm frontend || true
+sudo docker run -d -p 80:3000 --name frontend ${DOCKER_IMAGE}:latest
+
 EOF
 """
                     }
