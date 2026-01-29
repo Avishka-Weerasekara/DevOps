@@ -11,7 +11,7 @@ pipeline {
     stages {
 
         /* =========================
-           1. CHECKOUT SOURCE CODE
+           1. CHECKOUT
         ========================== */
         stage('Checkout') {
             steps {
@@ -21,7 +21,7 @@ pipeline {
         }
 
         /* =========================
-           2. BUILD DOCKER IMAGE
+           2. BUILD DOCKER IMAGE (NO CACHE)
         ========================== */
         stage('Build Docker Image') {
             steps {
@@ -37,7 +37,7 @@ docker build --no-cache \
         }
 
         /* =========================
-           3. PUSH IMAGE TO DOCKER HUB
+           3. PUSH TO DOCKER HUB
         ========================== */
         stage('Push to Docker Hub') {
             steps {
@@ -48,10 +48,8 @@ docker build --no-cache \
                 )]) {
                     sh """
 echo "\$DOCKER_PASS" | docker login -u "\$DOCKER_USER" --password-stdin
-
 docker push ${DOCKER_IMAGE}:latest
 docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
-
 docker logout
 """
                 }
@@ -70,8 +68,7 @@ docker logout
                     dir('DevOps/terraform') {
                         sh """
 terraform init
-terraform apply -auto-approve \
-  -var="key_name=devops-key"
+terraform apply -auto-approve -var="key_name=devops-key"
 """
                     }
                 }
@@ -79,7 +76,7 @@ terraform apply -auto-approve \
         }
 
         /* =========================
-           5. DEPLOY TO AWS EC2
+           5. DEPLOY TO EC2
         ========================== */
         stage('Deploy to AWS EC2') {
             steps {
@@ -93,25 +90,18 @@ terraform apply -auto-approve \
 
                     sshagent(credentials: ['bd4685d7-504d-4f3b-930c-075db4165b52']) {
                         sh """
-ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << 'EOF'
+ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << EOF
 set -e
 
-echo "Waiting for cloud-init / apt locks..."
-while sudo fuser /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 5; done
-while sudo fuser /var/lib/apt/lists/lock >/dev/null 2>&1; do sleep 5; done
+# Ensure Docker exists
+sudo apt update -y
+sudo apt install -y docker.io
+sudo systemctl start docker
+sudo systemctl enable docker
 
-# Install Docker if missing
-if ! command -v docker >/dev/null 2>&1; then
-  sudo apt update -y
-  sudo apt install -y docker.io
-  sudo systemctl start docker
-  sudo systemctl enable docker
-fi
-
-# Ensure docker daemon ready
+# Wait for Docker
 until sudo docker info >/dev/null 2>&1; do
-  echo "Waiting for Docker daemon..."
-  sleep 5
+  sleep 3
 done
 
 # Deploy container
@@ -124,21 +114,11 @@ sudo docker run -d \
   --name frontend \
   ${DOCKER_IMAGE}:latest
 
-echo "Deployment completed successfully"
 EOF
 """
                     }
                 }
             }
-        }
-    }
-
-    post {
-        success {
-            echo "✅ CI/CD Pipeline completed successfully"
-        }
-        failure {
-            echo "❌ CI/CD Pipeline failed"
         }
     }
 }

@@ -2,35 +2,22 @@ FROM node:20
 
 WORKDIR /app
 
-# -------------------------------
-# 1. Build-time variable (IMPORTANT)
-# -------------------------------
+# Force cache busting
 ARG BUILD_VERSION
 ENV REACT_APP_BUILD_VERSION=$BUILD_VERSION
 
-# -------------------------------
-# 2. Install dependencies first
-# -------------------------------
+# Install dependencies
 COPY package*.json ./
 RUN npm install
 
-# -------------------------------
-# 3. Copy rest of the source code
-# -------------------------------
+# Copy source
 COPY . .
 
-# -------------------------------
-# 4. Build React app
-# -------------------------------
+# Build React (cache-busted)
 RUN npm run build
 
-# -------------------------------
-# 5. Install serve & expose port
-# -------------------------------
+# Serve build
 RUN npm install -g serve
-EXPOSE 3000
 
-# -------------------------------
-# 6. Start React app
-# -------------------------------
-CMD ["serve", "-s", "build", "-l", "3000"]
+EXPOSE 3000
+CMD ["serve", "-s", "build"]
