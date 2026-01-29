@@ -19,7 +19,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                dir('frontend') {
+                dir('DevOps/frontend') {
                     sh 'docker build -t $DOCKER_IMAGE:latest .'
                 }
             }
