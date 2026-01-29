@@ -63,7 +63,7 @@ docker logout
                         sh '''
 terraform init
 terraform apply -auto-approve \
-  -var="key_name=your-keypair-name"
+  -var="key_name=devops-key"
 '''
                     }
                 }
