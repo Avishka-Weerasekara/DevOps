@@ -90,15 +90,12 @@ terraform apply -auto-approve \
 ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << 'EOF'
 set -e
 
-# Install Docker if not installed
-if ! command -v docker >/dev/null 2>&1; then
-  sudo apt update -y
-  sudo apt install -y docker.io
-  sudo systemctl start docker
-  sudo systemctl enable docker
-fi
+# Wait until Docker is ready (user_data safe-guard)
+until sudo docker info >/dev/null 2>&1; do
+  echo "Waiting for Docker to be ready..."
+  sleep 5
+done
 
-# Run container using sudo (CI-safe)
 sudo docker pull ${DOCKER_IMAGE}:latest
 sudo docker stop frontend || true
 sudo docker rm frontend || true
