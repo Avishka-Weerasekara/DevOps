@@ -4,12 +4,15 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'avishkaweera20/devops-frontend'
         DOCKERHUB_CREDENTIALS = 'dockerhub'
+        AWS_REGION = 'eu-north-1'
         EC2_USER = 'ubuntu'
-        EC2_HOST = '16.171.136.59'
     }
 
     stages {
 
+        /* =========================
+           1. CHECKOUT SOURCE CODE
+        ========================== */
         stage('Checkout') {
             steps {
                 git branch: 'main',
@@ -17,6 +20,9 @@ pipeline {
             }
         }
 
+        /* =========================
+           2. BUILD DOCKER IMAGE
+        ========================== */
         stage('Build Docker Image') {
             steps {
                 dir('DevOps/frontend') {
@@ -25,6 +31,9 @@ pipeline {
             }
         }
 
+        /* =========================
+           3. PUSH IMAGE TO DOCKER HUB
+        ========================== */
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(
@@ -41,17 +50,50 @@ docker logout
             }
         }
 
+        /* =========================
+           4. TERRAFORM INIT & APPLY
+        ========================== */
+        stage('Terraform Apply') {
+            steps {
+                withCredentials([
+                    [$class: 'AmazonWebServicesCredentialsBinding',
+                     credentialsId: 'aws-creds']
+                ]) {
+                    dir('DevOps/terraform') {
+                        sh '''
+terraform init
+terraform apply -auto-approve \
+  -var="key_name=your-keypair-name"
+'''
+                    }
+                }
+            }
+        }
+
+        /* =========================
+           5. DEPLOY TO EC2
+        ========================== */
         stage('Deploy to AWS EC2') {
             steps {
-                sshagent(credentials: ['bd4685d7-504d-4f3b-930c-075db4165b52']) {
-                    sh '''
-ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST <<EOF
-docker pull avishkaweera20/devops-frontend:latest
+                script {
+                    // Get EC2 public IP from Terraform output
+                    def EC2_HOST = sh(
+                        script: "terraform -chdir=DevOps/terraform output -raw ec2_public_ip",
+                        returnStdout: true
+                    ).trim()
+
+                    echo "Deploying to EC2 IP: ${EC2_HOST}"
+
+                    sshagent(credentials: ['bd4685d7-504d-4f3b-930c-075db4165b52']) {
+                        sh """
+ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} <<EOF
+docker pull ${DOCKER_IMAGE}:latest
 docker stop frontend || true
 docker rm frontend || true
-docker run -d -p 80:3000 --name frontend avishkaweera20/devops-frontend:latest
+docker run -d -p 80:3000 --name frontend ${DOCKER_IMAGE}:latest
 EOF
-'''
+"""
+                    }
                 }
             }
         }
