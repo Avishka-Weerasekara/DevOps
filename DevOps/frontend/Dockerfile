@@ -3,7 +3,7 @@ FROM node:20
 WORKDIR /app
 
 # Copy env FIRST
-COPY .env ./
+
 
 # Copy dependencies
 COPY package*.json ./
