@@ -71,12 +71,11 @@ terraform apply -auto-approve \
         }
 
         /* =========================
-           5. DEPLOY TO EC2
+           5. DEPLOY TO EC2 (FIXED)
         ========================== */
         stage('Deploy to AWS EC2') {
             steps {
                 script {
-                    // Get EC2 public IP from Terraform output
                     def EC2_HOST = sh(
                         script: "terraform -chdir=DevOps/terraform output -raw ec2_public_ip",
                         returnStdout: true
@@ -86,7 +85,19 @@ terraform apply -auto-approve \
 
                     sshagent(credentials: ['bd4685d7-504d-4f3b-930c-075db4165b52']) {
                         sh """
-ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} <<EOF
+ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << 'EOF'
+set -e
+
+# Install Docker if not installed yet
+if ! command -v docker >/dev/null 2>&1; then
+  sudo apt update -y
+  sudo apt install -y docker.io
+  sudo systemctl start docker
+  sudo systemctl enable docker
+  sudo usermod -aG docker ubuntu
+fi
+
+# Deploy container
 docker pull ${DOCKER_IMAGE}:latest
 docker stop frontend || true
 docker rm frontend || true
