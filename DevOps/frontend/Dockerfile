@@ -2,21 +2,35 @@ FROM node:20
 
 WORKDIR /app
 
-# Copy env FIRST
+# -------------------------------
+# 1. Build-time variable (IMPORTANT)
+# -------------------------------
+ARG BUILD_VERSION
+ENV REACT_APP_BUILD_VERSION=$BUILD_VERSION
 
-
-# Copy dependencies
+# -------------------------------
+# 2. Install dependencies first
+# -------------------------------
 COPY package*.json ./
 RUN npm install
 
-# Copy rest of the app
+# -------------------------------
+# 3. Copy rest of the source code
+# -------------------------------
 COPY . .
 
-# Build React app (env is read here)
+# -------------------------------
+# 4. Build React app
+# -------------------------------
 RUN npm run build
 
-# Serve build
+# -------------------------------
+# 5. Install serve & expose port
+# -------------------------------
 RUN npm install -g serve
 EXPOSE 3000
 
-CMD ["serve", "-s", "build"]
+# -------------------------------
+# 6. Start React app
+# -------------------------------
+CMD ["serve", "-s", "build", "-l", "3000"]
