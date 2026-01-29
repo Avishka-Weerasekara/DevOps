@@ -6,8 +6,9 @@ function Footer() {
     <footer className="footer">
       <div className="footer-content">
         <p>© {new Date().getFullYear()} E-Commerce Platform</p>
+
         <p className="footer-sub">
-          Built 
+          Built • Version #{process.env.REACT_APP_BUILD_VERSION}
         </p>
       </div>
     </footer>
