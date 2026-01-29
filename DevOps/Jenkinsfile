@@ -21,13 +21,15 @@ pipeline {
         }
 
         /* =========================
-           2. BUILD DOCKER IMAGE
+           2. BUILD DOCKER IMAGE (NO CACHE)
         ========================== */
         stage('Build Docker Image') {
             steps {
                 dir('DevOps/frontend') {
                     sh '''
-docker build -t ${DOCKER_IMAGE}:latest .
+docker build --no-cache \
+  -t ${DOCKER_IMAGE}:latest \
+  -t ${DOCKER_IMAGE}:${BUILD_NUMBER} .
 '''
                 }
             }
@@ -45,7 +47,10 @@ docker build -t ${DOCKER_IMAGE}:latest .
                 )]) {
                     sh '''
 echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+
 docker push ${DOCKER_IMAGE}:latest
+docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}
+
 docker logout
 '''
                 }
@@ -53,7 +58,7 @@ docker logout
         }
 
         /* =========================
-           4. TERRAFORM INIT & APPLY
+           4. TERRAFORM APPLY
         ========================== */
         stage('Terraform Apply') {
             steps {
@@ -87,15 +92,22 @@ terraform apply -auto-approve \
 
                     sshagent(credentials: ['bd4685d7-504d-4f3b-930c-075db4165b52']) {
                         sh """
-ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << 'EOF'
+ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} << EOF
 set -e
 
-# Wait until Docker is ready (user_data safe-guard)
+# Ensure Docker is installed & running
+sudo apt update -y
+sudo apt install -y docker.io
+sudo systemctl start docker
+sudo systemctl enable docker
+
+# Wait until Docker daemon is ready
 until sudo docker info >/dev/null 2>&1; do
-  echo "Waiting for Docker to be ready..."
+  echo "Waiting for Docker..."
   sleep 5
 done
 
+# Deploy latest image
 sudo docker pull ${DOCKER_IMAGE}:latest
 sudo docker stop frontend || true
 sudo docker rm frontend || true
