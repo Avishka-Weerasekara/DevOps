@@ -7,7 +7,7 @@ function Footer() {
       <div className="footer-content">
         <p>© {new Date().getFullYear()} E-Commerce Platform</p>
         <p className="footer-sub">
-          Built with using React
+          Built 
         </p>
       </div>
     </footer>
