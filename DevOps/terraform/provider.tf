@@ -1,7 +1,12 @@
-variable "instance_type" {
-  default = "t3.micro"
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.0"
+    }
+  }
 }
 
-variable "key_name" {
-  description = "EC2 key pair name"
+provider "aws" {
+  region = "eu-north-1"
 }
