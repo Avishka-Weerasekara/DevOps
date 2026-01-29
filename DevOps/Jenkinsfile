@@ -10,7 +10,7 @@ pipeline {
 
     stages {
 
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
                 git branch: 'main',
                     url: 'https://github.com/Avishka-Weerasekara/DevOps.git'
@@ -19,7 +19,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                dir('DevOps/frontend') {
+                dir('frontend') {
                     sh 'docker build -t $DOCKER_IMAGE:latest .'
                 }
             }
@@ -46,10 +46,10 @@ docker logout
                 sshagent(credentials: ['bd4685d7-504d-4f3b-930c-075db4165b52']) {
                     sh '''
 ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST <<EOF
-docker pull $DOCKER_IMAGE:latest
+docker pull avishkaweera20/devops-frontend:latest
 docker stop frontend || true
 docker rm frontend || true
-docker run -d -p 80:3000 --name frontend $DOCKER_IMAGE:latest
+docker run -d -p 80:3000 --name frontend avishkaweera20/devops-frontend:latest
 EOF
 '''
                 }
