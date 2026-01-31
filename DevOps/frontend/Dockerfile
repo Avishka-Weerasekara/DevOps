@@ -2,8 +2,9 @@ FROM node:20
 
 WORKDIR /app
 
-# Copy env first (IMPORTANT)
-COPY .env ./
+# Accept build-time variable from Jenkins
+ARG REACT_APP_API_URL
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
 
 # Install deps
 COPY package*.json ./
@@ -12,7 +13,7 @@ RUN npm install
 # Copy app source
 COPY . .
 
-# Build React app (env is injected here)
+# Build React app
 RUN npm run build
 
 # Serve build
