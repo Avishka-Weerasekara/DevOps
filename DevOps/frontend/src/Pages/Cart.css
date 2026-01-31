@@ -1,0 +1,128 @@
+/* ===============================
+   CART PAGE – BALANCED & CENTERED
+================================ */
+
+.cart-page {
+  min-height: calc(100vh - 64px);
+  padding: 60px 20px;
+
+  background: linear-gradient(
+    135deg,
+    #38bdf8,
+    #6366f1
+  );
+}
+
+/* CENTER CONTAINER */
+.cart-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* TITLE */
+.cart-page h2 {
+  color: white;
+  margin-bottom: 30px;
+  font-size: 28px;
+}
+
+/* EMPTY STATE */
+.empty {
+  background: rgba(255, 255, 255, 0.25);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+
+  padding: 40px;
+  border-radius: 20px;
+  color: #020617;
+  font-size: 16px;
+}
+
+/* LIST */
+.cart-list {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* ITEM CARD */
+.cart-item {
+  display: grid;
+  grid-template-columns: 90px 1fr auto;
+  align-items: center;
+  gap: 20px;
+
+  background: rgba(255, 255, 255, 0.35);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+
+  padding: 20px 24px;
+  border-radius: 22px;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.25);
+}
+
+/* IMAGE */
+.cart-item img {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+/* INFO */
+.cart-item h4 {
+  font-size: 16px;
+  margin-bottom: 6px;
+  color: #020617;
+}
+
+.cart-item p {
+  font-size: 14px;
+  color: #1e293b;
+}
+
+/* REMOVE BUTTON */
+.cart-item button {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: none;
+  background: #ef4444;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* TOTAL SECTION */
+.cart-total {
+  margin-top: 30px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background: rgba(255, 255, 255, 0.4);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+
+  padding: 22px 28px;
+  border-radius: 26px;
+  box-shadow: 0 22px 45px rgba(0,0,0,0.3);
+}
+
+/* TOTAL TEXT */
+.cart-total h3 {
+  font-size: 20px;
+  color: #020617;
+}
+
+/* CHECKOUT BUTTON */
+.checkout-btn {
+  padding: 14px 36px;
+  border-radius: 30px;
+  border: none;
+
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+}

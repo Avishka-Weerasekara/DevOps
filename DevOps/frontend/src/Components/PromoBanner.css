@@ -1,0 +1,68 @@
+/* ===============================
+   PROMO BANNER
+================================ */
+
+.promo-banner {
+  margin: 70px 60px;
+  padding: 60px;
+  border-radius: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+
+  background: linear-gradient(135deg, #16a34a, #22c55e, #4ade80);
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+/* LEFT CONTENT */
+.promo-left {
+  max-width: 520px;
+}
+
+.promo-badge {
+  display: inline-block;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+.promo-left h2 {
+  font-size: 36px;
+  line-height: 1.2;
+}
+
+.promo-left h2 span {
+  color: #020617;
+}
+
+.promo-left p {
+  margin: 15px 0 25px;
+  font-size: 15px;
+}
+
+.promo-btn {
+  padding: 14px 30px;
+  border-radius: 30px;
+  border: none;
+  background: #020617;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* RIGHT DECOR */
+.promo-right {
+  position: relative;
+}
+
+.promo-circle {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+}
