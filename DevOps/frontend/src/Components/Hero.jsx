@@ -14,7 +14,7 @@ function Hero() {
       <div className="hero-overlay">
         <div className="hero-content">
           <h1>
-            Fresh Groceries <br /> Delivered to You 123
+            Fresh Groceries <br /> Delivered to You 
           </h1>
           <p>Daily essentials, fresh food & more at LOOM</p>
 
